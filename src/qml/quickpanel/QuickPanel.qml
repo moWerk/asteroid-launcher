@@ -690,14 +690,8 @@ Component {
         QuickPanelToggle {
             id: brightnessToggle
             icon: "ios-sunny"
-            onChecked: {
-                if (displaySettings.brightness === 0) {
-                    displaySettings.brightness = 100
-                } else if (displaySettings.brightness < 100) {
-                    displaySettings.brightness = 100
-                }
-            }
-            onUnchecked: displaySettings.brightness = 0
+            onChecked: displaySettings.brightness = 100
+            onUnchecked: displaySettings.brightness = 10
             Component.onCompleted: toggled = displaySettings.brightness > 10
 
             property bool isIncreasing: true // Current direction for adjustment
