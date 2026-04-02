@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023 - Timo Könnecke <github.com/eLtMosen>
+ * Copyright (C) 2026 - Timo Könnecke <github.com/moWerk>
  *
  * All rights reserved.
  *
@@ -45,8 +45,6 @@ Item {
             layer {
                 enabled: true
                 samples: 4
-                smooth: true
-                textureSize: Qt.size(nightstandMode.width * 2, nightstandMode.height * 2)
             }
 
             Repeater {
@@ -60,7 +58,7 @@ Item {
                 property bool clockwise: true
                 property real arcStrokeWidth: .05
                 property real scalefactor: .46 - (arcStrokeWidth / 2)
-                property real chargecolor: Math.floor(batteryChargePercentage.percent / 33.35)
+                property int chargecolor: Math.floor(batteryChargePercentage.percent / 33.35)
                 readonly property var colorArray: [ "red", "yellow", Qt.rgba(.318, 1, .051, .9)]
 
                 model: segmentAmount
@@ -189,7 +187,7 @@ Item {
                 horizontalOffset: 4
                 verticalOffset: 4
                 radius: 7.0
-                samples: 15
+                samples: 9
                 color: "#99000000"
             }
         }
