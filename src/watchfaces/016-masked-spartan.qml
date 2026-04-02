@@ -46,17 +46,15 @@ Item {
         height: parent.width > parent.height ? parent.height : parent.width
         width: height
 
-        Rectangle {
+Rectangle {
             id: layer2mask
 
             anchors.centerIn: parent
             width: parent.width * (nightstand ? .86 : 1)
             height: width
             color: displayAmbient ? Qt.rgba(1, 1, 1, .8) : Qt.rgba(0, 0, 0, .8)
-            visible: true
             opacity: .0
             layer.enabled: true
-            layer.smooth: true
             radius: DeviceSpecs.hasRoundScreen || nightstand ? width : 0
         }
 
@@ -65,7 +63,6 @@ Item {
 
             anchors.fill: layer2mask
             color: Qt.rgba(0, 1, 0, 0)
-            visible: true
 
             Text {
                 property real voffset: parent.height * .01
@@ -79,12 +76,8 @@ Item {
                 color: Qt.rgba(1, 1, 1, 1)
                 y: parent.height / 3 - height / 2 + voffset
                 x: -parent.width * .055
-                text: if (use12H.value) {
-                          wallClock.time.toLocaleString(Qt.locale(), "hh ap").slice(0, 2).replace(/1/g," 1 ") }
-                      else
-                          wallClock.time.toLocaleString(Qt.locale(), "HH").replace(/1/g," 1 ")
-
-
+                text: use12H.value ? wallClock.time.toLocaleString(Qt.locale(), "hh ap").slice(0, 2).replace(/1/g," 1 ") :
+                wallClock.time.toLocaleString(Qt.locale(), "HH").replace(/1/g," 1 ")
             }
 
             Text {
@@ -211,8 +204,6 @@ Item {
             layer {
                 enabled: true
                 samples: 4
-                smooth: true
-                textureSize: Qt.size(nightstandMode.width * 2, nightstandMode.height * 2)
             }
 
             Shape {
@@ -222,12 +213,9 @@ Item {
                 // radius of arc is scalefactor * height or width
                 property real arcStrokeWidth: .022
                 property real scalefactor: .45 - (arcStrokeWidth / 2)
-                property real chargecolor: Math.floor(batteryChargePercentage.percent / 33.35)
-                readonly property var colorArray: [ "red", "yellow", Qt.rgba(.318, 1, .051, .9)]
+                property int chargecolor: Math.floor(batteryChargePercentage.percent / 33.35)
 
                 anchors.fill: parent
-                smooth: true
-                antialiasing: true
 
                 ShapePath {
                     fillColor: "transparent"
