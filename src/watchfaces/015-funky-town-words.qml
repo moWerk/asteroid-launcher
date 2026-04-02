@@ -50,26 +50,41 @@ Item {
         height: parent.width > parent.height ? parent.height : parent.width
         width: height
 
-        Image {
-            anchors.centerIn: parent
-            source: imgPath +
-                    wallClock.time.toLocaleString(Qt.locale(), "hh am").slice(0, 2) +
-                    (nightstandMode.active || displayAmbient ? "-bw.svg" : ".svg")
-            sourceSize.width: parent.width
-            sourceSize.height: parent.height
-            width: parent.width
-            height: parent.height
-        }
-
-        Image {
-            anchors.centerIn: parent
-            source: imgPath +
-                    wallClock.time.toLocaleString(Qt.locale("en_EN"), "ap").toLowerCase().slice(0, 2) + ".svg"
-            visible: use12H.value
-            sourceSize.width: parent.width
-            sourceSize.height: parent.height
-            width: parent.width
-            height: parent.height
+        // OpacityMask clips square SVGs to circle on round screens — layer disabled on square screens for zero cost
+        Item {
+            id: imageWrapper
+            anchors.fill: parent
+            layer.enabled: DeviceSpecs.hasRoundScreen
+            layer.effect: OpacityMask {
+                maskSource: Rectangle {
+                    width: imageWrapper.width
+                    height: imageWrapper.height
+                    radius: width / 2
+                    visible: false
+                }
+            }
+            
+            Image {
+                anchors.centerIn: parent
+                source: imgPath +
+                wallClock.time.toLocaleString(Qt.locale(), "hh am").slice(0, 2) +
+                (nightstandMode.active || displayAmbient ? "-bw.svg" : ".svg")
+                sourceSize.width: parent.width
+                sourceSize.height: parent.height
+                width: parent.width
+                height: parent.height
+            }
+            
+            Image {
+                anchors.centerIn: parent
+                source: imgPath +
+                wallClock.time.toLocaleString(Qt.locale("en_EN"), "ap").toLowerCase().slice(0, 2) + ".svg"
+                visible: use12H.value
+                sourceSize.width: parent.width
+                sourceSize.height: parent.height
+                width: parent.width
+                height: parent.height
+            }
         }
 
         Text {
@@ -111,8 +126,6 @@ Item {
             layer {
                 enabled: true
                 samples: 4
-                smooth: true
-                textureSize: Qt.size(nightstandMode.width * 2, nightstandMode.height * 2)
             }
 
             Shape {
@@ -122,12 +135,10 @@ Item {
                 // radius of arc is scalefactor * height or width
                 property real arcStrokeWidth: .016
                 property real scalefactor: .45 - (arcStrokeWidth / 2)
-                property real chargecolor: Math.floor(batteryChargePercentage.percent / 33.35)
+                property int chargecolor: Math.floor(batteryChargePercentage.percent / 33.35)
                 readonly property var colorArray: [ "red", "yellow", Qt.rgba(.318, 1, .051, .9)]
 
                 anchors.fill: parent
-                smooth: true
-                antialiasing: true
 
                 ShapePath {
                     fillColor: "transparent"
@@ -171,14 +182,6 @@ Item {
 
         MceBatteryLevel {
             id: batteryChargePercentage
-        }
-
-        MceBatteryState {
-            id: batteryChargeState
-        }
-
-        MceCableState {
-            id: mceCableState
         }
 
         Component.onCompleted: {
