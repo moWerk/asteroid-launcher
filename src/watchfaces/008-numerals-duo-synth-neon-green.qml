@@ -1,5 +1,5 @@
 /*
-* Copyright (C) 2023 - Timo Könnecke <github.com/eLtMosen>
+* Copyright (C) 2026 - Timo Könnecke <github.com/moWerk>
 *               2021 - Darrel Griët <dgriet@gmail.com>
 *               2016 - Sylvia van Os <iamsylvie@openmailbox.org>
 *               2015 - Florent Revest <revestflo@gmail.com>
@@ -68,7 +68,7 @@ Item {
                 horizontalOffset: 0
                 verticalOffset: 3
                 radius: 12.0
-                samples: 16
+                samples: 9
                 color: "#fe16a2"
             }
         }
@@ -98,7 +98,7 @@ Item {
                 horizontalOffset: 0
                 verticalOffset: -3
                 radius: 12.0
-                samples: 16
+                samples: 9
                 color: "#fe16a2"
             }
         }
@@ -116,7 +116,6 @@ Item {
             LinearGradient {
                 id: greenColor
                 anchors.fill: parent
-                smooth: true
                 visible: false
                 start: Qt.point(0, 0)
                 end: Qt.point(300, 300)
@@ -129,7 +128,6 @@ Item {
             LinearGradient {
                 id: whiteColor
                 anchors.fill: parent
-                smooth: true
                 visible: false
                 start: Qt.point(0, 0)
                 end: Qt.point(300, 300)
@@ -142,7 +140,6 @@ Item {
            Image {
                id: topLeft
                visible: false
-               smooth: true
                fillMode: Image.PreserveAspectFit
                x: parseInt(parent.width*0.135)
                y: parseInt(parent.height*0.045)
@@ -152,7 +149,6 @@ Item {
            Image {
                id: topRight
                visible: false
-               smooth: true
                fillMode: Image.PreserveAspectFit
                x: parseInt(parent.width/2 + parent.width*0.03)
                y: parseInt(parent.height*0.045)
@@ -162,7 +158,6 @@ Item {
            Image {
                id: bottomLeft
                visible: false
-               smooth: true
                fillMode: Image.PreserveAspectFit
                x: parseInt(parent.width*0.135)
                y: parseInt(parent.height/2 + parent.height*0.025)
@@ -172,7 +167,6 @@ Item {
            Image {
                id: bottomRight
                visible: false
-               smooth: true
                fillMode: Image.PreserveAspectFit
                x: parseInt(parent.width/2 + parent.width*0.03)
                y: parseInt(parent.height/2 + parent.height*0.025)
@@ -191,7 +185,7 @@ Item {
                     horizontalOffset: 1
                     verticalOffset: 1
                     radius: 12.0
-                    samples: 20
+                    samples: 9
                     color: "#f800ff"
                 }
             }
@@ -206,7 +200,7 @@ Item {
                     horizontalOffset: -1
                     verticalOffset: 1
                     radius: 12.0
-                    samples: 20
+                    samples: 9
                     color: "#f800ff"
                 }
             }
@@ -221,7 +215,7 @@ Item {
                     horizontalOffset: -1
                     verticalOffset: -1
                     radius: 12.0
-                    samples: 20
+                    samples: 9
                     color: "#9600ff"
                 }
             }
@@ -236,7 +230,7 @@ Item {
                     horizontalOffset: 1
                     verticalOffset: -1
                     radius: 12.0
-                    samples: 20
+                    samples: 9
                     color: "#9600ff"
                 }
             }
