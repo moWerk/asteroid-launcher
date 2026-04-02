@@ -1,5 +1,6 @@
 /*
- * Copyright (C) 2022 - Timo Könnecke <github.com/eLtMosen>
+ * Copyright (C) 2026 - Timo Könnecke <github.com/moWerk>
+ *               2022 - Timo Könnecke <github.com/eLtMosen>
  *               2022 - Darrel Griët <dgriet@gmail.com>
  *               2022 - Ed Beroset <github.com/beroset>
  *               2016 - Sylvia van Os <iamsylvie@openmailbox.org>
@@ -31,36 +32,34 @@ import Nemo.Mce 1.0
 
 Item {
     anchors.fill: parent
-
+    
     property string imgPath: "../watchfaces-img/analog-circle-shades-"
-
+    
     Item {
         id: root
-
+        
         anchors.centerIn: parent
         height: parent.width > parent.height ? parent.height : parent.width
         width: height
-
+        
         MceBatteryLevel {
             id: batteryChargePercentage
         }
-
+        
         Item {
             id: batterySegments
-
+            
             anchors.fill: parent
             visible: !displayAmbient || nightstand
-
+            
             layer {
                 enabled: true
                 samples: 4
-                smooth: true
-                textureSize: Qt.size(root.width * 2, root.height * 2)
             }
-
+            
             Repeater {
                 id: segmentedArc
-
+                
                 property real inputValue: batteryChargePercentage.percent
                 property int segmentAmount: 12
                 property int start: 0
@@ -69,12 +68,12 @@ Item {
                 property bool clockwise: true
                 property real arcStrokeWidth: .011
                 property real scalefactor: .374 - (arcStrokeWidth / 2)
-
+                
                 model: segmentAmount
-
+                
                 Shape {
                     id: segment
-
+                    
                     ShapePath {
                         fillColor: "transparent"
                         strokeColor: index / segmentedArc.segmentAmount < segmentedArc.inputValue / 100 ? "#26C485" : "black"
@@ -82,8 +81,8 @@ Item {
                         capStyle: ShapePath.RoundCap
                         joinStyle: ShapePath.MiterJoin
                         startX: parent.width / 2
-                        startY: parent.height * ( .5 - segmentedArc.scalefactor)
-
+                        startY: parent.height * (.5 - segmentedArc.scalefactor)
+                        
                         PathAngleArc {
                             centerX: parent.width / 2
                             centerY: parent.height / 2
@@ -91,102 +90,58 @@ Item {
                             radiusY: segmentedArc.scalefactor * parent.height
                             startAngle: -90 + index * (sweepAngle + (segmentedArc.clockwise ? +segmentedArc.gap : -segmentedArc.gap)) + segmentedArc.start
                             sweepAngle: segmentedArc.clockwise ? (segmentedArc.endFromStart / segmentedArc.segmentAmount) - segmentedArc.gap :
-                                                                 -(segmentedArc.endFromStart / segmentedArc.segmentAmount) + segmentedArc.gap
+                            -(segmentedArc.endFromStart / segmentedArc.segmentAmount) + segmentedArc.gap
                             moveToStart: true
                         }
                     }
                 }
             }
         }
-
+        
         Item {
             id: handBox
-
+            
             anchors.fill: root
-
+            
+            // second hand has no layer — continuous 60fps rotation would force constant recomposite
             Image {
                 id: secondSVG
-
+                
                 visible: !displayAmbient
                 source: imgPath + "second.svg"
                 anchors.fill: handBox
-
+                
                 transform: Rotation {
+                    id: secondRot
                     origin.x: handBox.width / 2
                     origin.y: handBox.height / 2
-                    angle: (wallClock.time.getSeconds() * 6)
-
-                    Behavior on angle {
-                        enabled: !displayAmbient
-
-                        RotationAnimation {
-                            duration: 1000
-                            direction: RotationAnimation.Clockwise
-                        }
-                    }
-                }
-
-                layer {
-                    enabled: true
-                    effect: DropShadow {
-                        transparentBorder: true
-                        horizontalOffset: 0
-                        verticalOffset: 0
-                        radius: 10.0
-                        samples: 21
-                        color: Qt.rgba(0, 0, 0, .8)
-                    }
                 }
             }
-
+            
             Text {
                 id: secondDisplay
-
-                property real rotM: ((wallClock.time.getSeconds() - 15) / 60)
-                property real centerX: parent.width / 2 - width / 1.9
-                property real centerY: parent.height / 2 - height / 2.06
-
+                
                 visible: !displayAmbient
-
-                font{
+                font {
                     pixelSize: parent.height * .082
                     family: "Roboto Flex"
                     letterSpacing: -parent.height * .005
                 }
                 color: "white"
-                x: centerX + Math.cos(rotM * 2 * Math.PI) * parent.width * .366
-                y: centerY + Math.sin(rotM * 2 * Math.PI) * parent.height * .366
-                text: wallClock.time.toLocaleString(Qt.locale(), "ss")
-
-                Behavior on x {
-                    enabled: !displayAmbient
-
-                    NumberAnimation {
-                        duration: 1000
-                    }
-                }
-
-                Behavior on y {
-                    enabled: !displayAmbient
-
-                    NumberAnimation {
-                        duration: 1000
-                    }
-                }
             }
-
+            
             Image {
                 id: minuteSVG
-
+                
                 source: imgPath + "minute.svg"
                 anchors.fill: handBox
-
+                
                 transform: Rotation {
+                    id: minuteRot
                     origin.x: handBox.width / 2
                     origin.y: handBox.height / 2
-                    angle: (wallClock.time.getMinutes() * 6) + (wallClock.time.getSeconds() * 6 / 60)
                 }
-
+                
                 layer {
                     enabled: true
                     effect: DropShadow {
@@ -194,37 +149,30 @@ Item {
                         horizontalOffset: 0
                         verticalOffset: 0
                         radius: 15.0
-                        samples: 31
+                        samples: 9
                         color: Qt.rgba(0, 0, 0, .8)
                     }
                 }
             }
-
+            
             Text {
                 id: minuteDisplay
-
-                property real rotM: ((wallClock.time.getMinutes() - 15 + (wallClock.time.getSeconds() / 60)) / 60)
-                property real centerX: parent.width / 2 - width / 1.92
-                property real centerY: parent.height / 2 - height / 2.04
-
-                font{
+                
+                font {
                     pixelSize: parent.height * .12
                     family: "Roboto Flex"
                     styleName: "Medium"
                     letterSpacing: -parent.height * .006
                 }
                 color: "black"
-                x: centerX + Math.cos(rotM * 2 * Math.PI) * parent.height * .214
-                y: centerY + Math.sin(rotM * 2 * Math.PI) * parent.width * .214
-                text: wallClock.time.toLocaleString(Qt.locale(), "mm")
             }
-
+            
             Image {
                 id: hourSVG
-
-                source:imgPath + "hour.svg"
+                
+                source: imgPath + "hour.svg"
                 anchors.fill: parent
-
+                
                 layer {
                     enabled: true
                     effect: DropShadow {
@@ -232,16 +180,16 @@ Item {
                         horizontalOffset: 0
                         verticalOffset: 0
                         radius: 20.0
-                        samples: 41
+                        samples: 9
                         color: Qt.rgba(0, 0, 0, .8)
                     }
                 }
             }
         }
-
+        
         Text {
             id: hourDisplay
-
+            
             anchors {
                 centerIn: parent
                 verticalCenterOffset: parent.height * .004
@@ -254,10 +202,51 @@ Item {
                 letterSpacing: -parent.height * .005
             }
             color: "black"
-            text: if (use12H.value) {
-                      wallClock.time.toLocaleString(Qt.locale(), "hh ap").slice(0, 2) }
-                  else
-                      wallClock.time.toLocaleString(Qt.locale(), "HH")
+            text: use12H.value ? wallClock.time.toLocaleString(Qt.locale(), "hh ap").slice(0, 2) :
+            wallClock.time.toLocaleString(Qt.locale(), "HH")
+        }
+        
+        // 16ms Timer drives both second hand rotation and orbiting secondDisplay position
+        // using new Date() for millisecond precision — eliminates Behavior catch-up on return
+        Timer {
+            interval: 16
+            repeat: true
+            running: !displayAmbient && visible
+            onTriggered: {
+                var now = new Date()
+                var secMs = now.getSeconds() * 1000 + now.getMilliseconds()
+                secondRot.angle = secMs * 6 / 1000
+                var rotS = (secMs / 1000 - 15) / 60
+                secondDisplay.x = root.width / 2 - secondDisplay.width / 1.9 + Math.cos(rotS * 2 * Math.PI) * root.width * .366
+                secondDisplay.y = root.height / 2 - secondDisplay.height / 2.06 + Math.sin(rotS * 2 * Math.PI) * root.height * .366
+            }
+        }
+        
+        Connections {
+            target: wallClock
+            onTimeChanged: {
+                var h = wallClock.time.getHours()
+                var min = wallClock.time.getMinutes()
+                var sec = wallClock.time.getSeconds()
+                minuteRot.angle = min * 6 + sec * 6 / 60
+                var rotM = (min - 15 + sec / 60) / 60
+                minuteDisplay.x = root.width / 2 - minuteDisplay.width / 1.92 + Math.cos(rotM * 2 * Math.PI) * root.height * .214
+                minuteDisplay.y = root.height / 2 - minuteDisplay.height / 2.04 + Math.sin(rotM * 2 * Math.PI) * root.width * .214
+                minuteDisplay.text = wallClock.time.toLocaleString(Qt.locale(), "mm")
+                secondDisplay.text = wallClock.time.toLocaleString(Qt.locale(), "ss")
+            }
+        }
+        
+        Component.onCompleted: {
+            var h = wallClock.time.getHours()
+            var min = wallClock.time.getMinutes()
+            var sec = wallClock.time.getSeconds()
+            minuteRot.angle = min * 6 + sec * 6 / 60
+            var rotM = (min - 15 + sec / 60) / 60
+            minuteDisplay.x = root.width / 2 - minuteDisplay.width / 1.92 + Math.cos(rotM * 2 * Math.PI) * root.height * .214
+            minuteDisplay.y = root.height / 2 - minuteDisplay.height / 2.04 + Math.sin(rotM * 2 * Math.PI) * root.width * .214
+            minuteDisplay.text = wallClock.time.toLocaleString(Qt.locale(), "mm")
+            secondDisplay.text = wallClock.time.toLocaleString(Qt.locale(), "ss")
         }
     }
 }
