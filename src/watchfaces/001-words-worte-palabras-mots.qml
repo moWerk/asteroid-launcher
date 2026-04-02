@@ -212,7 +212,7 @@ Item {
                 horizontalOffset: 4
                 verticalOffset: 4
                 radius: 8.0
-                samples: 17
+                samples: 9
                 color: "#60000000"
             }
 
@@ -285,8 +285,6 @@ Item {
             layer {
                 enabled: true
                 samples: 4
-                smooth: true
-                textureSize: Qt.size(nightstandMode.width * 2, nightstandMode.height * 2)
             }
             visible: nightstandMode.active
 
@@ -301,7 +299,7 @@ Item {
                 property bool clockwise: true
                 property real arcStrokeWidth: .024
                 property real scalefactor: .45 - (arcStrokeWidth / 2)
-                property real chargecolor: Math.floor(batteryChargePercentage.percent / 33.35)
+                property int chargecolor: Math.floor(batteryChargePercentage.percent / 33.35)
                 readonly property var colorArray: [ "red", "yellow", Qt.rgba(.318, 1, .051, .9)]
 
                 model: segmentAmount
