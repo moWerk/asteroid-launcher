@@ -30,7 +30,7 @@ Item {
 
     property string currentColor: ""
     property string userColor: ""
-    property int hour: wallClock.time.toLocaleString(Qt.locale(), "h ap").slice(0, 2) === "12" ? 0 : wallClock.time.toLocaleString(Qt.locale(), "h ap").slice(0, 2)
+    property int hour: 0
     property var colorOffset: ["#ff0000", "#ff8000", "#ffff00", "#80ff00", "#00ff00", "#00ff80", "#00ffff", "#0080ff", "#0000ff", "#8000ff", "#ff00ff", "#ff0080"]
     property var wordsDE: ["zwölf", "eins", "zwei", "drei", "vier", "fünf", "sechs", "sieben", "acht", "neun", "zehn", "elf"]
     property var wordsEN: ["twelve", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven"]
@@ -64,8 +64,6 @@ Item {
             layer {
                 enabled: true
                 samples: 4
-                smooth: true
-                textureSize: Qt.size(nightstandMode.width * 2, nightstandMode.height * 2)
             }
             visible: nightstandMode.active
 
@@ -80,7 +78,7 @@ Item {
                 property bool clockwise: true
                 property real arcStrokeWidth: .02
                 property real scalefactor: .48 - (arcStrokeWidth / 2)
-                property real chargecolor: Math.floor(batteryChargePercentage.percent / 33.35)
+                property int chargecolor: Math.floor(batteryChargePercentage.percent / 33.35)
                 readonly property var colorArray: [ "red", "yellow", Qt.rgba(.318, 1, .051, .9)]
 
                 model: segmentAmount
@@ -122,7 +120,6 @@ Item {
             id: circleBack
             z: 2
 
-            property var toggle: 1
             antialiasing : true
             x: parent.width / 2 - width / 2
             y: parent.height / 2 - height / 2
@@ -225,7 +222,7 @@ Item {
                     horizontalOffset: 3
                     verticalOffset: 3
                     radius: 12.0
-                    samples: 17
+                    samples: 9
                     color: "#50000000"
                 }
             }
@@ -233,21 +230,30 @@ Item {
 
         Connections {
             target: compositor
-
             function onDisplayAmbientEntered() {
-                if (currentColor == "") {
+                if (currentColor === "") {
                     currentColor = "black"
                     userColor = ""
-                }
-                else
+                } else {
                     userColor = "black"
+                }
             }
-
             function onDisplayAmbientLeft() {
-                if (userColor == "") {
+                if (userColor === "") {
                     currentColor = ""
                 }
             }
         }
+    }
+    
+    Connections {
+        target: wallClock
+        onTimeChanged: {
+            hour = wallClock.time.getHours() % 12
+        }
+    }
+    
+    Component.onCompleted: {
+        hour = wallClock.time.getHours() % 12
     }
 }
