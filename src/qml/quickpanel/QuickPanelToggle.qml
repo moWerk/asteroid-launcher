@@ -48,48 +48,63 @@ MouseArea {
 
     pressAndHoldInterval: 300
 
-    property bool isIncreasing: true
+    // -- Scrub interaction --
+    // scrubWidth must be set by the caller to the available drag distance
+    // (typically rootitem.width) so the full range maps across the panel.
+    property bool scrubbing: false
+    property int scrubWidth: 0
 
+    // wasScrubbing is a backup guard for the case where onClicked does fire
+    // after a short drag. For long drags Qt may not fire onClicked at all,
+    // in which case scrubEventGuard on rootitem swallows the stray event.
+    property bool wasScrubbing: false
+
+    // Clear wasScrubbing at the start of a new press so the next full
+    // click cycle works normally after a long drag that skipped onClicked
+    onPressed: {
+        if (wasScrubbing) wasScrubbing = false
+    }
+    
     onPressAndHold: {
-        if (!rangeBased) return;
-        holdTimer.start()
+        if (!rangeBased) return
+        scrubbing = true
+        wasScrubbing = true
+        preventStealing = true
+        updateValue(mapToItem(rootitem, mouseX, 0).x)
     }
 
+    onPositionChanged: {
+        // Before hold is confirmed, preventStealing is false so the parent
+        // ListView steals horizontal swipes naturally. Once scrubbing is
+        // active, all position events are ours.
+        if (!scrubbing) return
+        updateValue(mapToItem(rootitem, mouseX, 0).x)
+    }
+
+    // onReleased is the unconditional cleanup — clears scrub state regardless
+    // of which path activated it. wasScrubbing intentionally NOT cleared here
+    // since onClicked fires after onReleased and needs to read it.
     onReleased: {
-        holdTimer.stop()
-        directionChangeTimer.stop()
+        scrubbing = false
+        preventStealing = false
     }
 
     onCanceled: {
-        holdTimer.stop()
-        directionChangeTimer.stop()
+        scrubbing = false
+        wasScrubbing = false
+        preventStealing = false
     }
 
-    Timer {
-        id: holdTimer
-        interval: 300
-        repeat: true
-        triggeredOnStart: true
-        onTriggered: {
-            const newValue = rangeValue + (isIncreasing ? 1 : -1) * rangeStepSize
-            rangeValue = Math.max(rangeMin, Math.min(rangeMax, newValue))
-            if (rangeValue >= rangeMax || rangeValue <= rangeMin) {
-                holdTimer.stop()
-                isIncreasing = !isIncreasing
-                directionChangeTimer.start()
-            }
-        }
-    }
-
-    Timer {
-        id: directionChangeTimer
-        //delay after direction is changed
-        interval: 1000
-        repeat: false
-        onTriggered: {
-            if (ma.pressed)
-                holdTimer.start()
-        }
+    // Snap-to-position with fat-finger margins: maps absolute panel x to the
+    // value range. The 0.15 margin on each side matches scrubRangeWidth in
+    // QuickPanel so the visual bar boundaries and finger position correspond.
+    function updateValue(mx) {
+        var margin = scrubWidth * 0.15
+        var f = Math.max(0, Math.min(1, (mx - margin) / Math.max(1, scrubWidth - 2 * margin)))
+        var newVal = rangeMin + f * (rangeMax - rangeMin)
+        // | 0 casts to int — Qt6 rejects assigning a JS Number (double) to a
+        // property int even when the value is whole (Math.round returns double)
+        rangeValue = Math.max(rangeMin, Math.min(rangeMax, Math.round(newVal / rangeStepSize) * rangeStepSize)) | 0
     }
 
     Rectangle {
@@ -108,4 +123,3 @@ MouseArea {
         opacity: ma.pressed ? 0.5 : ma.checked ? 1 : (ma.checkable ? 0.3 : 1)
     }
 }
-
