@@ -35,110 +35,119 @@ import org.nemomobile.lipstick
 Item {
     id: btAgent
 
-    width: initialSize.width
-    height: width
+    anchors.fill: parent
     visible: bluetoothAgent.windowVisible
 
+    // The dialog is sized against a centered square (the shorter screen edge)
+    // instead of Dims, so the pairing circle stays a circle and everything
+    // centers on non-square screens.
     Item {
-        id: circleWrapper
-        anchors.fill: parent
-        Rectangle {
-            id: circle
-            anchors.centerIn: parent
-            width: parent.width*0.7
-            height: parent.height*0.7
-            radius: width/2
-            color: "#f4f4f4"
-        }
-    }
-    DropShadow {
-        anchors.fill: circleWrapper
-        horizontalOffset: 0
-        verticalOffset: 0
-        radius: 8.0
-        samples: 17
-        color: "#80000000"
-        source: circleWrapper
-        cached: true
-    }
-
-    Icon {
-        id: icon
+        id: content
         anchors.centerIn: parent
-        anchors.verticalCenterOffset: -Dims.h(20)
-        width: Dims.w(20)
+        width: Math.min(parent.width, parent.height)
         height: width
-        color: "#666666"
-        name: "ios-bluetooth"
-    }
 
-    Item {
-        id: text
-        anchors.left: parent.left
-        anchors.right: parent.right
-        anchors.top: icon.bottom
-        anchors.topMargin: Dims.h(3)
-        Label {
-            id: summary
-            anchors.top: parent.top
-            width: Dims.w(70)
-            horizontalAlignment: Text.AlignHCenter
-            anchors.horizontalCenter: parent.horizontalCenter
-            color: "#666666"
-            font.pixelSize: Dims.h(5)
-            clip: true
-            elide: Text.ElideRight
+        Item {
+            id: circleWrapper
+            anchors.fill: parent
+            Rectangle {
+                id: circle
+                anchors.centerIn: parent
+                width: content.width * 0.7
+                height: width
+                radius: width/2
+                color: "#f4f4f4"
+            }
+        }
+        DropShadow {
+            anchors.fill: circleWrapper
+            horizontalOffset: 0
+            verticalOffset: 0
+            radius: 8.0
+            samples: 17
+            color: "#80000000"
+            source: circleWrapper
+            cached: true
         }
 
-        Label {
-            id: body
-            anchors.top: summary.bottom
-            width: Dims.w(70)
-            height: Dims.h(10)
-            anchors.horizontalCenter: parent.horizontalCenter
-            horizontalAlignment: Text.AlignHCenter
+        Icon {
+            id: icon
+            anchors.centerIn: parent
+            anchors.verticalCenterOffset: -content.width * 0.2
+            width: content.width * 0.2
+            height: width
             color: "#666666"
-            font.bold: true
-            clip: true
-            maximumLineCount: 1
-            elide: Text.ElideRight
-            wrapMode: Text.Wrap
+            name: "ios-bluetooth"
         }
-    }
 
-    TextField {
-        id: inputField
-        inputMethodHints: Qt.ImhDigitsOnly
-        anchors.top: text.top
-        anchors.horizontalCenter: parent.horizontalCenter
-        width: Dims.w(60)
-    }
+        Item {
+            id: text
+            anchors.left: parent.left
+            anchors.right: parent.right
+            anchors.top: icon.bottom
+            anchors.topMargin: content.width * 0.03
+            Label {
+                id: summary
+                anchors.top: parent.top
+                width: content.width * 0.7
+                horizontalAlignment: Text.AlignHCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                color: "#666666"
+                font.pixelSize: content.width * 0.05
+                clip: true
+                elide: Text.ElideRight
+            }
 
-    IconButton {
-        id: cancelButton
-        iconColor: "#666666"
-        iconName: "ios-close-circle-outline"
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.horizontalCenterOffset: -Dims.w(12)
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: Dims.h(21)
-        onClicked: bluetoothAgent.userCancels()
-    }
+            Label {
+                id: body
+                anchors.top: summary.bottom
+                width: content.width * 0.7
+                height: content.width * 0.1
+                anchors.horizontalCenter: parent.horizontalCenter
+                horizontalAlignment: Text.AlignHCenter
+                color: "#666666"
+                font.bold: true
+                clip: true
+                maximumLineCount: 1
+                elide: Text.ElideRight
+                wrapMode: Text.Wrap
+            }
+        }
 
-    IconButton {
-        id: confirmButton
-        iconColor: "#666666"
-        iconName: "ios-checkmark-circle-outline"
-        anchors.horizontalCenter: parent.horizontalCenter
-        anchors.horizontalCenterOffset: Dims.w(12)
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: Dims.h(21)
-        onClicked: {
-            if(bluetoothAgent.state == BluetoothAgent.ReqPinCode)
-                bluetoothAgent.pinCode = Number(inputField.text)
-            if(bluetoothAgent.state == BluetoothAgent.ReqPasskey)
-                bluetoothAgent.passkey = inputField.text
-            bluetoothAgent.userAccepts()
+        TextField {
+            id: inputField
+            inputMethodHints: Qt.ImhDigitsOnly
+            anchors.top: text.top
+            anchors.horizontalCenter: parent.horizontalCenter
+            width: content.width * 0.6
+        }
+
+        IconButton {
+            id: cancelButton
+            iconColor: "#666666"
+            iconName: "ios-close-circle-outline"
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.horizontalCenterOffset: -content.width * 0.12
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: content.width * 0.21
+            onClicked: bluetoothAgent.userCancels()
+        }
+
+        IconButton {
+            id: confirmButton
+            iconColor: "#666666"
+            iconName: "ios-checkmark-circle-outline"
+            anchors.horizontalCenter: parent.horizontalCenter
+            anchors.horizontalCenterOffset: content.width * 0.12
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: content.width * 0.21
+            onClicked: {
+                if(bluetoothAgent.state == BluetoothAgent.ReqPinCode)
+                    bluetoothAgent.pinCode = Number(inputField.text)
+                if(bluetoothAgent.state == BluetoothAgent.ReqPasskey)
+                    bluetoothAgent.passkey = inputField.text
+                bluetoothAgent.userAccepts()
+            }
         }
     }
 
