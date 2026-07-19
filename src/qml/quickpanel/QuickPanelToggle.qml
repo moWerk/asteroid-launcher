@@ -70,6 +70,9 @@ MouseArea {
         scrubbing = true
         wasScrubbing = true
         preventStealing = true
+        // haptic confirms the scrub is armed the moment the hold is
+        // detected — input sensing leads, the visual morph follows
+        feedback.play()
         updateValue(mapToItem(rootitem, mouseX, 0).x)
     }
 
