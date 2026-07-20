@@ -501,8 +501,11 @@ Item {
         visible: isCharging
         opacity: 1.0
 
+        // Only pulse while the panel is on screen. The panels grid toggles
+        // rootitem.visible per panel, so this stops the infinite animation
+        // from waking the CPU every 1.5s while charging on another panel.
         SequentialAnimation on opacity {
-            running: isCharging && options.value.batteryAnimation
+            running: rootitem.visible && isCharging && options.value.batteryAnimation
             loops: Animation.Infinite
             NumberAnimation { to: 0.7; duration: 1500; easing.type: Easing.InOutQuad }
             NumberAnimation { to: 1.0; duration: 1500; easing.type: Easing.InOutQuad }
