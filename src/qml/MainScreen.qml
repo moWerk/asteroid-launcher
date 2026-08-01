@@ -297,7 +297,7 @@ Item {
     ConfigurationValue {
         id: nightstandAlwaysOnDisplay
         key: "/desktop/asteroid/nightstand/always-on-display"
-        defaultValue: false
+        defaultValue: true
     }
 
     ConfigurationValue {
