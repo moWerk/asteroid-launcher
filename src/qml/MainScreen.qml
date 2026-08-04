@@ -48,6 +48,10 @@ Item {
     visible: Lipstick.compositor.homeActive || aboutToOpen || aboutToClose || aboutToMinimize
     enabled: visible
 
+    // Requests the active watchface Loader to reload from disk. A signal, so
+    // the handler can live in the Loader's own scope.
+    signal watchfaceReloadRequested()
+
     AppLauncherBackground { id: alb }
 
     property var defaultCenterColor: alb.centerColor("/usr/share/asteroid-launcher/default-colors.desktop")
@@ -365,9 +369,7 @@ Item {
         // dropped the component cache, so re-trigger the loader to re-read the
         // directory and pick the new face up live.
         function onReloadNeeded() {
-            var watchFaceSourceBackup = watchFaceSource.value
-            watchFaceSource.value = ""
-            watchFaceSource.value = watchFaceSourceBackup
+            desktop.watchfaceReloadRequested()
         }
     }
 
@@ -393,6 +395,18 @@ Item {
                 Behavior on opacity { NumberAnimation { duration: 200; easing.type: Easing.InCirc} }
                 anchors.fill: parent
                 source: watchFaceSource.value
+
+                // Reinstantiate to re-read the source from disk. Toggling the
+                // Loader instead of rewriting the dconf-backed watchFaceSource
+                // avoids a cross-process write that can clobber a concurrent
+                // activation.
+                Connections {
+                    target: desktop
+                    function onWatchfaceReloadRequested() {
+                        watchfaceLoader.active = false
+                        watchfaceLoader.active = true
+                    }
+                }
             }
         }
     }
